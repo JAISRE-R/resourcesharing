@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Home</title>
+</head>
+<body>
+
+<h2>Home Page</h2>
+
+<p id="welcome"></p>
+
+<script>
+    async function loadHome() {
+
+        const response = await fetch("http://localhost:8080/api/home");
+        document.getElementById("welcome").innerText = await response.text();
+    }
+
+    loadHome();
+</script>
+
+</body>
+</html>

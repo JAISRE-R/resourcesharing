@@ -1,5 +1,6 @@
 package com.example.resourcesharing.service;
 
+import com.example.resourcesharing.dto.RegisterRequest;
 import org.springframework.stereotype.Service;
 import com.example.resourcesharing.repository.UserRepository;
 import com.example.resourcesharing.model.User;
@@ -24,5 +25,21 @@ public class AuthService {
         }
 
         return "Login successful. Welcome " + user.getName();
+    }
+
+    public String register(RegisterRequest request) {
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            return "User already exists";
+        }
+
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword()); // BCrypt later
+
+        userRepository.save(user);
+
+        return "User registered successfully";
     }
 }
