@@ -16,7 +16,14 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+
+        String result = authService.login(request);
+
+        if (result.equals("User not found") || result.equals("Invalid password")) {
+            return ResponseEntity.badRequest().body(result);
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/register")

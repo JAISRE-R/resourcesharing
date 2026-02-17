@@ -8,15 +8,21 @@
 <h2>Home Page</h2>
 
 <p id="welcome"></p>
+<button onclick="logout()">Logout</button>
 
 <script>
-    async function loadHome() {
+    const username = localStorage.getItem("username");
 
-        const response = await fetch("http://localhost:8080/api/home");
-        document.getElementById("welcome").innerText = await response.text();
+    if (username) {
+        document.getElementById("welcome").innerText = "Welcome " + username;
+    } else {
+        document.getElementById("welcome").innerText = "Welcome Guest";
     }
 
-    loadHome();
+    function logout() {
+        localStorage.removeItem("username");
+        window.location.href = "login.html";
+    }
 </script>
 
 </body>

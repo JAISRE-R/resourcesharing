@@ -1,6 +1,7 @@
 package com.example.resourcesharing.service;
 
 import com.example.resourcesharing.dto.RegisterRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.example.resourcesharing.repository.UserRepository;
 import com.example.resourcesharing.model.User;
@@ -10,9 +11,11 @@ import com.example.resourcesharing.dto.LoginRequest;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthService(UserRepository userRepository) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public String login(LoginRequest request) {
@@ -20,11 +23,11 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!user.getPassword().equals(request.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
 
-        return "Login successful. Welcome " + user.getName();
+        return user.getName();
     }
 
     public String register(RegisterRequest request) {
@@ -36,8 +39,7 @@ public class AuthService {
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword()); // BCrypt later
-
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
 
         return "User registered successfully";
