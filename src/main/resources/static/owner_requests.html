@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Owner Requests</title>
+</head>
+<body>
+
+<h2>Borrow Requests for My Resources</h2>
+<ul id="ownerRequestList"></ul>
+
+<script>
+    window.onload = loadOwnerRequests;
+
+    const ownerId = 1; // simulate logged-in owner
+
+    function loadOwnerRequests() {
+        fetch(`http://localhost:8080/api/borrow/owner-requests?ownerId=${ownerId}`)
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById("ownerRequestList");
+                list.innerHTML = "";
+
+                if (data.length === 0) {
+                    list.innerHTML = "<li>No requests found</li>";
+                    return;
+                }
+
+                data.forEach(req => {
+                    const li = document.createElement("li");
+
+                    li.innerHTML = `
+                    <b>${req.resource.title}</b>
+                    - Borrower: ${req.borrower.name}
+                    - Status: <b>${req.status}</b>
+                    ${req.status === "PENDING"
+                        ? `<button onclick="approveRequest(${req.id})">Approve</button>`
+                        : ""}
+                `;
+
+                    list.appendChild(li);
+                });
+            })
+            .catch(err => console.error("Error:", err));
+    }
+
+    function approveRequest(requestId) {
+        fetch(`http://localhost:8080/api/borrow/approve?requestId=${requestId}`, {
+            method: "PUT"
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.text().then(msg => { throw new Error(msg); });
+                }
+                return res.json();
+            })
+            .then(data => {
+                alert("Request approved!");
+                loadOwnerRequests(); // refresh list
+            })
+            .catch(err => alert(err.message));
+    }
+</script>
+
+</body>
+</html>

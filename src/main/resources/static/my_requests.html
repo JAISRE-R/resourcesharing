@@ -1,0 +1,73 @@
+<div class="navbar">
+    <a href="home.html">Home</a>
+    <a href="available-resources.html">Available Resources</a>
+    <a href="my_requests.html">My Requests</a>
+    <a href="owner.html">Owner Panel</a>
+</div>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>My Borrow Requests</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<h2>My Borrow Requests</h2>
+<ul id="requestList"></ul>
+<script src="js/app.js"></script>
+<script>
+    window.onload = loadRequests;
+
+    function loadRequests() {
+        fetch(`http://localhost:8080/api/borrow/my-requests?borrowerId=${borrowerId}`)
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById("requestList");
+                list.innerHTML = "";
+
+                if (data.length === 0) {
+                    list.innerHTML = "<li>No requests found</li>";
+                    return;
+                }
+
+                data.forEach(req => {
+                    const li = document.createElement("li");
+
+
+                    li.innerHTML = `
+                    <b>${req.resource.title}</b>
+                    - Status: <b>${req.status}</b>
+                    ${req.status === "APPROVED"
+                        ? `<button onclick="returnResource(${req.id})">Return</button>`
+                        : ""}
+                `;
+
+                    list.appendChild(li);
+                });
+            });
+    }
+
+    function returnResource(requestId) {
+        fetch(`http://localhost:8080/api/borrow/return?requestId=${requestId}`, {
+            method: "PUT"
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.text().then(msg => { throw new Error(msg); });
+                }
+                return res.json();
+            })
+            .then(() => {
+                alert("Resource returned!");
+                loadRequests();
+            })
+            .catch(err => alert(err.message));
+    }
+</script>
+
+<script>
+    loadMyRequests();
+</script>
+</body>
+</html>

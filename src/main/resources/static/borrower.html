@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Borrow Resources</title>
+    <link rel="stylesheet" href="borrowstyle.css">
+</head>
+<body>
+
+<div class="navbar">
+    <h3>Resource Sharing</h3>
+    <div>
+        <button onclick="goToMyRequests()">My Requests</button>
+        <button onclick="goToOwner()">Owner</button>
+    </div>
+</div>
+
+<div class="container">
+    <h2>Available Resources</h2>
+    <div id="resourceList"></div>
+</div>
+
+<script>
+    const borrowerId = 2; // simulate logged-in user
+
+    window.onload = loadResources;
+
+    function loadResources() {
+        fetch("http://localhost:8080/api/resources/available")
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById("resourceList");
+                container.innerHTML = "";
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = "<p>No resources available</p>";
+                    return;
+                }
+
+                data.forEach(resource => {
+                    const status = resource.availabilityStatus || "UNKNOWN";
+                    const isAvailable = status === "AVAILABLE";
+
+                    const card = document.createElement("div");
+                    card.className = "card";
+
+                    card.innerHTML = `
+                    <h3>${resource.title}</h3>
+                    <p>${resource.description}</p>
+                    <p><b>Category:</b> ${resource.category}</p>
+
+                    <span class="badge ${getStatusClass(status)}">
+                        ${status}
+                    </span>
+
+                    <br><br>
+
+                    <button
+                        ${!isAvailable ? "disabled" : ""}
+                        onclick="borrow(${resource.id})">
+                        ${isAvailable ? "Borrow" : "Not Available"}
+                    </button>
+                `;
+
+                    container.appendChild(card);
+                });
+            })
+            .catch(err => console.error("Error loading resources:", err));
+    }
+
+    function borrow(resourceId) {
+        const dueDate = "2026-03-30";
+
+        fetch("http://localhost:8080/api/borrow/request", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `resourceId=${resourceId}&borrowerId=${borrowerId}&dueDate=${dueDate}`
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.text().then(msg => { throw new Error(msg); });
+                }
+                return res.json();
+            })
+            .then(() => {
+                alert("Borrow request sent!");
+                loadResources();
+            })
+            .catch(err => alert(err.message));
+    }
+
+    function getStatusClass(status) {
+        if (status === "AVAILABLE") return "approved";
+        if (status === "BORROWED") return "rejected";
+        return "";
+    }
+
+    function goToMyRequests() {
+        window.location.href = "my_requests.html";
+    }
+
+    function goToOwner() {
+        window.location.href = "owner_requests.html";
+    }
+</script>
+
+</body>
+</html>

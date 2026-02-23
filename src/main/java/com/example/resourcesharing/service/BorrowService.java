@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class BorrowService {
@@ -28,6 +29,24 @@ public class BorrowService {
         User borrower = userRepository.findById(borrowerId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // block if already borrowed by someone
+        boolean alreadyBorrowed =
+                borrowRequestRepository.existsByResource_IdAndStatus(resourceId, "APPROVED");
+
+        if (alreadyBorrowed) {
+            throw new RuntimeException("Resource is already borrowed by another user");
+        }
+
+        List<BorrowRequest> existingRequests =
+                borrowRequestRepository.findByResource_IdAndBorrower_Id(resourceId, borrowerId);
+
+        for (BorrowRequest req : existingRequests) {
+            if ("PENDING".equals(req.getStatus()) || "APPROVED".equals(req.getStatus())) {
+                throw new RuntimeException("You already have an active request for this resource");
+            }
+        }
+
+
         if (!resource.getAvailabilityStatus().equals("AVAILABLE")) {
             throw new RuntimeException("Resource is not available");
         }
@@ -36,6 +55,7 @@ public class BorrowService {
         request.setResource(resource);
         request.setBorrower(borrower);
         request.setDueDate(dueDate);
+        request.setStatus("PENDING");
 
         return borrowRequestRepository.save(request);
     }
@@ -54,6 +74,17 @@ public class BorrowService {
 
         request.setStatus("APPROVED");
         resource.setAvailabilityStatus("BORROWED");
+
+        // reject other pending requests for same resource
+        List<BorrowRequest> pendingRequests =
+                borrowRequestRepository.findByResource_IdAndStatus(resource.getId(), "PENDING");
+
+        for (BorrowRequest r : pendingRequests) {
+            if (!r.getId().equals(requestId)) {
+                r.setStatus("REJECTED");
+                borrowRequestRepository.save(r);
+            }
+        }
 
         resourceRepository.save(resource);
 
@@ -77,6 +108,13 @@ public class BorrowService {
         resourceRepository.save(resource);
 
         return borrowRequestRepository.save(request);
+    }
+    public List<BorrowRequest> getRequestsByBorrower(Long borrowerId) {
+        return borrowRequestRepository.findByBorrower_Id(borrowerId);
+    }
+
+    public List<BorrowRequest> getRequestsForOwner(Long ownerId) {
+        return borrowRequestRepository.findByResource_Owner_Id(ownerId);
     }
 
 

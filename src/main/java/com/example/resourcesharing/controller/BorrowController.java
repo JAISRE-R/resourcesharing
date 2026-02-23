@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/borrow")
@@ -33,5 +34,15 @@ public class BorrowController {
     @PutMapping("/return")
     public BorrowRequest returnResource(@RequestParam Long requestId) {
         return borrowService.returnResource(requestId);
+    }
+
+    @GetMapping("/my-requests")
+    public List<BorrowRequest> getMyRequests(@RequestParam Long borrowerId) {
+        return borrowService.getRequestsByBorrower(borrowerId);
+    }
+
+    @GetMapping("/owner-requests")
+    public List<BorrowRequest> getRequestsForOwner(@RequestParam Long ownerId) {
+        return borrowService.getRequestsForOwner(ownerId);
     }
 }

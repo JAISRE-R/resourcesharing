@@ -1,26 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Home</title>
+    <title>Home - Resource Sharing</title>
+    <link rel="stylesheet" href="borrowstyle.css">
 </head>
 <body>
 
-<h2>Home Page</h2>
+<div class="navbar">
+    <h3>Resource Sharing Platform</h3>
+    <div>
+        <button onclick="goToBorrower()">Borrow</button>
+        <button onclick="goToMyRequests()">My Requests</button>
+        <button onclick="goToOwner()">Owner Panel</button>
+        <button onclick="goToAddResource()">Add Resource</button>
+        <button onclick="logout()">Logout</button>
+    </div>
+</div>
 
-<p id="welcome"></p>
-<button onclick="logout()">Logout</button>
+<div class="container">
+    <div class="card">
+        <h2 id="welcome"></h2>
+        <p>Select an action from the navigation bar.</p>
+    </div>
+</div>
 
 <script>
     const username = localStorage.getItem("username");
+    const userEmail = localStorage.getItem("userEmail");
 
-    if (username) {
-        document.getElementById("welcome").innerText = "Welcome " + username;
-    } else {
-        document.getElementById("welcome").innerText = "Welcome Guest";
+    if (!username) {
+        window.location.href = "login.html";
+    }
+
+    document.getElementById("welcome").innerText = "Welcome " + username;
+
+    // 🔥 Navigation functions
+    function goToBorrower() {
+        window.location.href = "borrower.html";
+    }
+
+    function goToMyRequests() {
+        window.location.href = "my_requests.html";
+    }
+
+    function goToOwner() {
+        window.location.href = "owner_requests.html";
+    }
+
+    function goToAddResource() {
+        window.location.href = "add_resource.html";
     }
 
     function logout() {
-        localStorage.removeItem("username");
+        localStorage.clear();
         window.location.href = "login.html";
     }
 </script>

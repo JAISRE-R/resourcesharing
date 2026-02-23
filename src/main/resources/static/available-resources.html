@@ -1,0 +1,69 @@
+<div class="navbar">
+    <a href="home.html">Home</a>
+    <a href="available-resources.html">Available Resources</a>
+    <a href="my_requests.html">My Requests</a>
+    <a href="owner.html">Owner Panel</a>
+</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Available Resources</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<h2>Available Resources</h2>
+<ul id="resourceList"></ul>
+<script src="js/app.js"></script>
+<script>
+    window.onload = loadResources;
+
+    function loadResources() {
+        fetch("http://localhost:8080/api/resources/available")
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById("resourceList");
+                list.innerHTML = "";
+
+                if (data.length === 0) {
+                    list.innerHTML = "<li>No resources available</li>";
+                    return;
+                }
+
+                data.forEach(resource => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `
+                    <b>${resource.title}</b> (${resource.category})
+                    <button onclick="borrow(${resource.id})">Borrow</button>
+                `;
+                    list.appendChild(li);
+                });
+            })
+            .catch(err => console.error("Error loading resources:", err));
+    }
+
+    function borrow(resourceId) {
+        const borrowerId = 2; // simulate logged-in user
+        const dueDate = "2026-03-10";
+
+        fetch("http://localhost:8080/api/borrow/request", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `resourceId=${resourceId}&borrowerId=${borrowerId}&dueDate=${dueDate}`
+        })
+            .then(res => res.json()) // change to text() if backend returns String
+            .then(data => {
+                alert("Borrow request sent!");
+                loadResources();
+            })
+            .catch(err => console.error("Borrow error:", err));
+    }
+</script>
+
+<script>
+    loadResources();
+</script>
+</body>
+</html>

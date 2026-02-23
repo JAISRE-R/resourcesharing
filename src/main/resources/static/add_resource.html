@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Add Resource</title>
+    <link rel="stylesheet" href="borrowstyle.css">
+</head>
+<body>
+
+<div class="navbar">
+    <h3>Resource Sharing</h3>
+    <div>
+        <button onclick="goToBorrower()">Borrower</button>
+        <button onclick="goToOwner()">Owner Requests</button>
+    </div>
+</div>
+
+<div class="container">
+    <h2>Add New Resource</h2>
+
+    <div class="card">
+        <label>Title</label><br>
+        <input type="text" id="title" placeholder="Enter resource title"><br><br>
+
+        <label>Description</label><br>
+        <textarea id="description" placeholder="Enter description"></textarea><br><br>
+
+        <label>Category</label><br>
+        <input type="text" id="category" placeholder="Enter category"><br><br>
+
+        <button onclick="addResource()">Add Resource</button>
+    </div>
+</div>
+
+<script>
+    const ownerId = 1; // simulate logged-in owner
+
+    function addResource() {
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+        const category = document.getElementById("category").value;
+
+        if (!title || !description || !category) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        fetch("http://localhost:8080/api/resources/add", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `title=${title}&description=${description}&category=${category}&ownerId=${ownerId}`
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.text().then(msg => { throw new Error(msg); });
+                }
+                return res.json();
+            })
+            .then(() => {
+                alert("Resource added successfully!");
+                document.getElementById("title").value = "";
+                document.getElementById("description").value = "";
+                document.getElementById("category").value = "";
+            })
+            .catch(err => alert(err.message));
+    }
+
+    function goToBorrower() {
+        window.location.href = "borrower.html";
+    }
+
+    function goToOwner() {
+        window.location.href = "owner_requests.html";
+    }
+</script>
+
+</body>
+</html>

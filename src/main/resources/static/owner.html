@@ -1,0 +1,58 @@
+
+<div class="navbar">
+    <a href="home.html">Home</a>
+    <a href="available-resources.html">Available Resources</a>
+    <a href="my_requests.html">My Requests</a>
+    <a href="owner.html">Owner Panel</a>
+</div>
+
+<head>
+    <link rel="stylesheet" href="css/styles.css">
+    <title>Approve Requests</title>
+</head>
+<h2>Requests for My Resources</h2>
+<ul id="ownerRequests"></ul>
+<script src="js/app.js"></script>
+<script>
+    const ownerId = 1;
+    console.log("Owner page loaded");
+
+    function loadOwnerRequests() {
+        fetch(`http://localhost:8080/api/borrow/owner-requests?ownerId=${ownerId}`)
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById("ownerRequests");
+                list.innerHTML = "";
+
+                data.forEach(req => {
+                    const li = document.createElement("li");
+
+                    li.innerHTML = `
+                  <b>${req.resource.title}</b>
+                  - Requested by: ${req.borrower.name}
+                  - Status: ${req.status}
+                  ${req.status === "PENDING"
+                        ? `<button onclick="approveRequest(${req.id})">Approve</button>`
+                        : ""}
+                `;
+
+                    list.appendChild(li);
+                });
+            });
+    }
+
+    function approveRequest(requestId) {
+        fetch(`http://localhost:8080/api/borrow/approve?requestId=${requestId}`, {
+            method: "PUT"
+        })
+            .then(() => {
+                alert("Approved ✅");
+                loadOwnerRequests();
+            });
+    }
+
+    loadOwnerRequests();
+</script>
+<script>
+    loadOwnerRequests();
+</script>
