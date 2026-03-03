@@ -20,20 +20,30 @@ public class BorrowController {
     public BorrowRequest requestBorrow(
             @RequestParam Long resourceId,
             @RequestParam Long borrowerId,
-            @RequestParam String dueDate
+            @RequestParam LocalDate dueDate
     ) {
-        LocalDate date = LocalDate.parse(dueDate);
-        return borrowService.requestBorrow(resourceId, borrowerId, date);
+        return borrowService.requestBorrow(resourceId, borrowerId, dueDate);
     }
 
     @PutMapping("/approve")
-    public BorrowRequest approveRequest(@RequestParam Long requestId) {
-        return borrowService.approveRequest(requestId);
+    public BorrowRequest approveRequest(
+            @RequestParam Long requestId,
+            @RequestParam Long ownerId) {
+
+        return borrowService.approveRequest(requestId, ownerId);
     }
 
     @PutMapping("/return")
     public BorrowRequest returnResource(@RequestParam Long requestId) {
         return borrowService.returnResource(requestId);
+    }
+
+    @PutMapping("/reject")
+    public BorrowRequest rejectRequest(
+            @RequestParam Long requestId,
+            @RequestParam Long ownerId) {
+
+        return borrowService.rejectRequest(requestId, ownerId);
     }
 
     @GetMapping("/my-requests")

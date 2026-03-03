@@ -12,4 +12,8 @@ public interface ResourceRepository extends JpaRepository<Resource, Long> {
     List<Resource> findByAvailabilityStatus(String availabilityStatus);
 
     List<Resource> findByOwner_Id(Long ownerId);
+
+    List<Resource> findByAvailabilityStatusAndOwner_IdNot(String status, Long ownerId);
+
+
 }

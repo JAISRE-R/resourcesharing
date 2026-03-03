@@ -1,6 +1,7 @@
 package com.example.resourcesharing.repository;
 
 import com.example.resourcesharing.model.BorrowRequest;
+import com.example.resourcesharing.model.RequestStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public interface BorrowRequestRepository extends JpaRepository<BorrowRequest, Lo
 
     List<BorrowRequest> findByResource_IdAndBorrower_Id(Long resourceId, Long borrowerId);
 
-    boolean existsByResource_IdAndStatus(Long resourceId, String status);
+    boolean existsByResource_IdAndStatus(Long resource_id, RequestStatus status);
 
-    List<BorrowRequest> findByResource_IdAndStatus(Long resourceId, String status);
+    List<BorrowRequest> findByResource_IdAndStatus(Long resource_id, RequestStatus status);
 }

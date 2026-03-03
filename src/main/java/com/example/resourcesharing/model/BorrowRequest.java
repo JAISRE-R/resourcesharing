@@ -26,7 +26,8 @@ public class BorrowRequest {
     private User borrower;
 
     @Setter
-    private String status; // PENDING, APPROVED, REJECTED, RETURNED
+    @Enumerated(EnumType.STRING)
+    private RequestStatus status; // PENDING, APPROVED, REJECTED, RETURNED
 
     private LocalDate requestDate;
     @Setter
@@ -36,7 +37,7 @@ public class BorrowRequest {
 
     // 🔹 Constructor
     public BorrowRequest() {
-        this.status = "PENDING";
+        this.status = RequestStatus.PENDING;
         this.requestDate = LocalDate.now();
     }
 

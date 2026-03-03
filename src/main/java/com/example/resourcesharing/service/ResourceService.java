@@ -36,8 +36,16 @@ public class ResourceService {
         return resourceRepository.save(resource);
     }
 
+    public List<Resource> getAllResources() {
+        return resourceRepository.findAll();
+    }
     public List<Resource> getResourcesByOwner(Long ownerId) {
         return resourceRepository.findByOwner_Id(ownerId);
+    }
+
+    public List<Resource> getAvailableResourcesExcludingOwner(Long ownerId) {
+        return resourceRepository
+                .findByAvailabilityStatusAndOwner_IdNot("AVAILABLE", ownerId);
     }
 
 

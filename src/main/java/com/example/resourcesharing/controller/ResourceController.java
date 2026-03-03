@@ -31,9 +31,19 @@ public class ResourceController {
         return resourceService.addResource(title, description, category, ownerId);
     }
 
+    @GetMapping("/all")
+    public List<Resource> getAllResources() {
+        return resourceService.getAllResources();
+    }
+
     @GetMapping("/owner")
     public List<Resource> getResourcesByOwner(@RequestParam Long ownerId) {
         return resourceService.getResourcesByOwner(ownerId);
+    }
+
+    @GetMapping("/browse")
+    public List<Resource> browseResources(@RequestParam Long userId) {
+        return resourceService.getAvailableResourcesExcludingOwner(userId);
     }
 
 
